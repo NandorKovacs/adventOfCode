@@ -31,14 +31,23 @@ firstTask l = length $ filter id (map safeReport l)
 checkPair :: Int -> Int -> Int -> Bool
 checkPair x y z = signum (x-y) == signum (y-z) && 0 < abs (x-y) && abs (x-y) < 4
 
--- this doesn't work yet
-toleratingReport :: [Int] -> [Int]
-toleratingReport [] = []
-toleratingReport (x:xs)
-  | length t < 2 = x:t
-  | checkPair x (head t) (t !! 1) = x:t
-  | otherwise = t
-  where t = toleratingReport xs
+
+-- greedy doesn't work of course
+-- toleratingReport :: [Int] -> [Int]
+-- toleratingReport (x:y:z:xs)
+--   | checkPair x y z = x:toleratingReport (y:z:xs)
+--   | otherwise = toleratingReport (y:z:xs)
+-- toleratingReport xs = xs
 
 secondTask :: [[Int]] -> Int
-secondTask l = length $ filter id (map (\l -> length (toleratingReport l) >= length l - 1) l)
+secondTask l = length $ filter id (map secondTaskCheese l)
+-- secondTask l = length $ filter (\x -> length x >= (n - 1)) (map toleratingReport l)
+--   where n = length (head l)
+
+
+
+secondTaskCheese :: [Int] -> Bool
+secondTaskCheese x
+  | safeReport x = True
+  | or ([safeReport (take y x ++ drop (y + 1) x) | y <- [0..length x]]) = True
+  | otherwise = False
