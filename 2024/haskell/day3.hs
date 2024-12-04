@@ -3,11 +3,13 @@ module Main where
 import Control.Exception (catch)
 import Data.Char (isDigit)
 import System.IO.Error (isEOFError)
+import Data.Tree (flatten)
 
 main :: IO ()
 main = do
   s <- parse
-  print $ firstTask s
+  print $ firstTask $ concat s
+  print $ secondTask $ concat s
 
 parse :: IO [String]
 parse = do
@@ -29,22 +31,32 @@ matchInt (x : xs) =
       Nothing -> ("", xs)
       Just (i, s) -> (i, s)
 
-matchMul :: String -> Int
-matchMul [] = 0
-matchMul s | length s < 8 = 0
-matchMul ('m' : 'u' : 'l' : '(' : s) =
+firstTask :: String -> Int
+firstTask [] = 0
+firstTask s | length s < 8 = 0
+firstTask ('m' : 'u' : 'l' : '(' : s) =
   case matchInt s of
-    Nothing -> matchMul s
+    Nothing -> firstTask s
     Just (i, t) ->
       if head t == ','
         then case matchInt $ tail t of
-          Nothing -> matchMul s
+          Nothing -> firstTask s
           Just (j, tt) ->
             if head tt == ')'
-              then (read i * read j) + matchMul (tail tt)
-              else matchMul s
-        else matchMul s
-matchMul (x:xs) = matchMul xs
+              then (read i * read j) + firstTask (tail tt)
+              else firstTask s
+        else firstTask s
+firstTask (x:xs) = firstTask xs
 
-firstTask :: [String] -> Int
-firstTask = foldr ((+) . matchMul) 0
+preprocessDo :: String -> String
+preprocessDo s | length s < 4 = s
+preprocessDo ('d':'o':'(':')':s) = preprocessDon't s
+preprocessDo (s:xs) = preprocessDo xs
+
+preprocessDon't :: String -> String
+preprocessDon't s | length s < 7 = s
+preprocessDon't ('d':'o':'n':'\'':'t':'(':')':s) = preprocessDo s
+preprocessDon't (s:xs) = s:preprocessDon't xs
+
+secondTask :: String -> Int
+secondTask xs = firstTask $ preprocessDon't xs
