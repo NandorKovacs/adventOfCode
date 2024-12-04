@@ -31,6 +31,7 @@ firstTask l = length $ filter id (map safeReport l)
 checkPair :: Int -> Int -> Int -> Bool
 checkPair x y z = signum (x-y) == signum (y-z) && 0 < abs (x-y) && abs (x-y) < 4
 
+-- this doesn't work yet
 toleratingReport :: [Int] -> [Int]
 toleratingReport [] = []
 toleratingReport (x:xs)
